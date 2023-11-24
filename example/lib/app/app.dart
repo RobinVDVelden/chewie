@@ -114,8 +114,6 @@ class _ChewieDemoState extends State<ChewieDemo> {
       videoPlayerController: _videoPlayerController1,
       autoPlay: true,
       looping: true,
-      progressIndicatorDelay:
-          bufferDelay != null ? Duration(milliseconds: bufferDelay!) : null,
 
       additionalOptions: (context) {
         return <OptionItem>[
@@ -138,8 +136,6 @@ class _ChewieDemoState extends State<ChewieDemo> {
                 style: const TextStyle(color: Colors.black),
               ),
       ),
-
-      hideControlsTimer: const Duration(seconds: 1),
 
       // Try playing around with some of these other options:
 
@@ -315,8 +311,7 @@ class _ChewieDemoState extends State<ChewieDemo> {
               ListTile(
                 title: const Text("Delay"),
                 subtitle: DelaySlider(
-                  delay:
-                      _chewieController?.progressIndicatorDelay?.inMilliseconds,
+                  delay: 1,
                   onSave: (delay) async {
                     if (delay != null) {
                       bufferDelay = delay == 0 ? null : delay;

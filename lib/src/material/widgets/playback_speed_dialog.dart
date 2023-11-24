@@ -20,12 +20,12 @@ class PlaybackSpeedDialog extends StatelessWidget {
       shrinkWrap: true,
       physics: const ScrollPhysics(),
       itemBuilder: (context, index) {
-        final speed = _speeds[index];
+        final _speed = _speeds[index];
         return ListTile(
           dense: true,
           title: Row(
             children: [
-              if (speed == _selected)
+              if (_speed == _selected)
                 Icon(
                   Icons.check,
                   size: 20.0,
@@ -34,12 +34,12 @@ class PlaybackSpeedDialog extends StatelessWidget {
               else
                 Container(width: 20.0),
               const SizedBox(width: 16.0),
-              Text(speed.toString()),
+              Text(_speed.toString()),
             ],
           ),
-          selected: speed == _selected,
+          selected: _speed == _selected,
           onTap: () {
-            Navigator.of(context).pop(speed);
+            Navigator.of(context).pop(_speed);
           },
         );
       },

@@ -12,7 +12,7 @@ class PlayerWithControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final ChewieController chewieController = ChewieController.of(context);
 
-    double calculateAspectRatio(BuildContext context) {
+    double _calculateAspectRatio(BuildContext context) {
       final size = MediaQuery.of(context).size;
       final width = size.width;
       final height = size.height;
@@ -20,16 +20,16 @@ class PlayerWithControls extends StatelessWidget {
       return width > height ? width / height : height / width;
     }
 
-    Widget buildControls(
+    Widget _buildControls(
       BuildContext context,
       ChewieController chewieController,
     ) {
       return chewieController.showControls
           ? chewieController.customControls ?? const AdaptiveControls()
-          : const SizedBox();
+          : Container();
     }
 
-    Widget buildPlayerWithControls(
+    Widget _buildPlayerWithControls(
       ChewieController chewieController,
       BuildContext context,
     ) {
@@ -38,7 +38,6 @@ class PlayerWithControls extends StatelessWidget {
           if (chewieController.placeholder != null)
             chewieController.placeholder!,
           InteractiveViewer(
-            transformationController: chewieController.transformationController,
             maxScale: chewieController.maxScale,
             panEnabled: chewieController.zoomAndPan,
             scaleEnabled: chewieController.zoomAndPan,
@@ -65,19 +64,19 @@ class PlayerWithControls extends StatelessWidget {
                   duration: const Duration(
                     milliseconds: 250,
                   ),
-                  child: const DecoratedBox(
-                    decoration: BoxDecoration(color: Colors.black54),
-                    child: SizedBox.expand(),
+                  child: Container(
+                    decoration: const BoxDecoration(color: Colors.black54),
+                    child: Container(),
                   ),
                 ),
               ),
             ),
           if (!chewieController.isFullScreen)
-            buildControls(context, chewieController)
+            _buildControls(context, chewieController)
           else
             SafeArea(
               bottom: false,
-              child: buildControls(context, chewieController),
+              child: _buildControls(context, chewieController),
             ),
         ],
       );
@@ -88,8 +87,8 @@ class PlayerWithControls extends StatelessWidget {
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         child: AspectRatio(
-          aspectRatio: calculateAspectRatio(context),
-          child: buildPlayerWithControls(chewieController, context),
+          aspectRatio: _calculateAspectRatio(context),
+          child: _buildPlayerWithControls(chewieController, context),
         ),
       ),
     );

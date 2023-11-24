@@ -41,8 +41,6 @@ class _MaterialDesktopControlsState extends State<MaterialDesktopControls>
   Timer? _showAfterExpandCollapseTimer;
   bool _dragging = false;
   bool _displayTapped = false;
-  Timer? _bufferingDisplayTimer;
-  bool _displayBufferingIndicator = false;
 
   final barHeight = 48.0 * 1.5;
   final marginSize = 5.0;
@@ -85,7 +83,7 @@ class _MaterialDesktopControlsState extends State<MaterialDesktopControls>
           absorbing: notifier.hideStuff,
           child: Stack(
             children: [
-              if (_displayBufferingIndicator)
+              if (_latestValue.isBuffering)
                 const Center(
                   child: CircularProgressIndicator(),
                 )
@@ -128,11 +126,11 @@ class _MaterialDesktopControlsState extends State<MaterialDesktopControls>
 
   @override
   void didChangeDependencies() {
-    final oldController = _chewieController;
+    final _oldController = _chewieController;
     _chewieController = ChewieController.of(context);
     controller = chewieController.videoPlayerController;
 
-    if (oldController != chewieController) {
+    if (_oldController != chewieController) {
       _dispose();
       _initialize();
     }
@@ -206,11 +204,11 @@ class _MaterialDesktopControlsState extends State<MaterialDesktopControls>
 
   Widget _buildSubtitles(BuildContext context, Subtitles subtitles) {
     if (!_subtitleOn) {
-      return const SizedBox();
+      return Container();
     }
     final currentSubtitle = subtitles.getByPosition(_subtitlesPosition);
     if (currentSubtitle.isEmpty) {
-      return const SizedBox();
+      return Container();
     }
 
     if (chewieController.subtitleBuilder != null) {
@@ -242,7 +240,7 @@ class _MaterialDesktopControlsState extends State<MaterialDesktopControls>
   AnimatedOpacity _buildBottomBar(
     BuildContext context,
   ) {
-    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
+    final iconColor = Theme.of(context).textTheme.button!.color;
 
     return AnimatedOpacity(
       opacity: notifier.hideStuff ? 0.0 : 1.0,
@@ -522,42 +520,15 @@ class _MaterialDesktopControlsState extends State<MaterialDesktopControls>
   }
 
   void _startHideTimer() {
-    final hideControlsTimer = chewieController.hideControlsTimer.isNegative
-        ? ChewieController.defaultHideControlsTimer
-        : chewieController.hideControlsTimer;
-    _hideTimer = Timer(hideControlsTimer, () {
+    _hideTimer = Timer(const Duration(seconds: 3), () {
       setState(() {
         notifier.hideStuff = true;
       });
     });
   }
 
-  void _bufferingTimerTimeout() {
-    _displayBufferingIndicator = true;
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
   void _updateState() {
     if (!mounted) return;
-
-    // display the progress bar indicator only after the buffering delay if it has been set
-    if (chewieController.progressIndicatorDelay != null) {
-      if (controller.value.isBuffering) {
-        _bufferingDisplayTimer ??= Timer(
-          chewieController.progressIndicatorDelay!,
-          _bufferingTimerTimeout,
-        );
-      } else {
-        _bufferingDisplayTimer?.cancel();
-        _bufferingDisplayTimer = null;
-        _displayBufferingIndicator = false;
-      }
-    } else {
-      _displayBufferingIndicator = controller.value.isBuffering;
-    }
-
     setState(() {
       _latestValue = controller.value;
       _subtitlesPosition = controller.value.position;
@@ -575,9 +546,6 @@ class _MaterialDesktopControlsState extends State<MaterialDesktopControls>
 
           _hideTimer?.cancel();
         },
-        onDragUpdate: () {
-          _hideTimer?.cancel();
-        },
         onDragEnd: () {
           setState(() {
             _dragging = false;
@@ -589,8 +557,7 @@ class _MaterialDesktopControlsState extends State<MaterialDesktopControls>
             ChewieProgressColors(
               playedColor: Theme.of(context).colorScheme.secondary,
               handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor:
-                  Theme.of(context).colorScheme.background.withOpacity(0.5),
+              bufferedColor: Theme.of(context).backgroundColor.withOpacity(0.5),
               backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
             ),
       ),
